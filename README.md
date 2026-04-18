@@ -40,7 +40,7 @@
 
 3. **Access Your Pantry**:
    * On your PC: Navigate to `http://127.0.0.1:5000`
-   * On your Phone: Connect your phone to the SAME Wi-Fi or PC Mobile Hotspot, and navigate to the local IP outputted in the terminal (e.g., `http://10.55.239.242:5000` or whatever the console tells you!).
+   * On your Phone: Connect your phone to the SAME Wi-Fi or PC Mobile Hotspot, and navigate to the local IP outputted in the terminal (e.g., `http://11.55.222.444:5000` or whatever the console tells you!).
 
 ---
 
