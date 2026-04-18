@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}{{ container.name }} — StockMyGhar{% endblock %}
+
+{% block content %}
+<!-- ── BREADCRUMB ── -->
+<div class="breadcrumb">
+  <a href="/" class="breadcrumb-link">🏠 Pantry</a>
+  <span class="breadcrumb-sep">›</span>
+  <span class="breadcrumb-current">{{ container.icon }} {{ container.name }}</span>
+</div>
+
+<!-- ── CONTAINER HEADER ── -->
+<section class="container-header" style="--accent: {{ container.color }}">
+  <div class="ch-left">
+    <div class="ch-icon" style="background: {{ container.color }}20; border-color: {{ container.color }}40;">
+      <span>{{ container.icon }}</span>
+    </div>
+    <div>
+      <h1 class="ch-title">{{ container.name }}</h1>
+      <p class="ch-meta" id="itemCountLabel">Loading items…</p>
+    </div>
+  </div>
+  <button class="btn-primary ch-add-btn" id="btnAddItemDesktop" style="--btn-bg: {{ container.color }}">
+    <span class="btn-icon">+</span> Add Item
+  </button>
+</section>
+
+<!-- Floating Action Button (mobile only) -->
+<button class="fab" id="btnAddItemFab" style="--fab-bg: {{ container.color }}" aria-label="Add item" title="Add Item">+</button>
+
+<!-- ── SEARCH ── -->
+<div class="search-bar-wrap">
+  <input type="search" id="searchItems" class="search-bar" placeholder="🔍  Search items…" autocomplete="off" />
+</div>
+
+<!-- ── ITEMS GRID ── -->
+<section class="items-grid" id="itemsGrid">
+  <div class="loading-spinner" id="gridLoader">
+    <div class="spinner"></div>
+    <p>Loading items…</p>
+  </div>
+</section>
+
+<div class="empty-state hidden" id="emptyState">
+  <div class="empty-icon">🛒</div>
+  <h2>No items yet</h2>
+  <p>Add your first grocery item to this container.</p>
+  <button class="btn-primary" onclick="document.getElementById('btnAddItem').click()" style="--btn-bg: {{ container.color }}">
+    + Add Item
+  </button>
+</div>
+
+<!-- ── ADD / EDIT ITEM MODAL ── -->
+<div class="modal hidden" id="itemModal" role="dialog" aria-modal="true" aria-labelledby="itemModalTitle">
+  <div class="modal-header">
+    <h2 id="itemModalTitle" class="modal-title">Add Item</h2>
+    <button class="modal-close" id="itemModalClose" aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <!-- Image capture -->
+    <div class="form-group">
+      <label>Product Image <span class="opt">(optional)</span></label>
+      <div class="image-upload-area" id="imageUploadArea">
+        <div class="image-preview-wrap hidden" id="imagePreviewWrap">
+          <img id="imagePreview" src="" alt="Preview" class="image-preview" />
+          <button class="remove-image-btn" id="removeImage" aria-label="Remove image">✕</button>
+        </div>
+        <div class="image-placeholder" id="imagePlaceholder">
+          <div class="upload-icon">📷</div>
+          <p>Tap to take a photo<br/><span>or upload from gallery</span></p>
+        </div>
+        <input type="file" id="imageFile" accept="image/*" capture="environment" class="hidden-file-input" aria-label="Upload image" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="iName">Item Name <span class="req">*</span></label>
+      <input type="text" id="iName" placeholder="e.g. Basmati Rice" maxlength="150" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group flex-1">
+        <label for="iQty">Quantity <span class="req">*</span></label>
+        <input type="number" id="iQty" placeholder="1" min="0" step="0.1" />
+      </div>
+      <div class="form-group flex-1">
+        <label for="iUnit">Unit</label>
+        <select id="iUnit">
+          <option value="pcs">pcs</option>
+          <option value="kg">kg</option>
+          <option value="g">g</option>
+          <option value="L">L</option>
+          <option value="mL">mL</option>
+          <option value="packets">packets</option>
+          <option value="bottles">bottles</option>
+          <option value="cans">cans</option>
+          <option value="bags">bags</option>
+          <option value="boxes">boxes</option>
+          <option value="dozen">dozen</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="iNotes">Notes <span class="opt">(optional)</span></label>
+      <textarea id="iNotes" placeholder="Brand, expiry, notes…" rows="2" maxlength="300"></textarea>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" id="cancelItemModal">Cancel</button>
+    <button class="btn-primary" id="saveItem" style="--btn-bg: {{ container.color }}">Save Item</button>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="modal hidden" id="deleteItemModal" role="dialog" aria-modal="true" aria-labelledby="deleteItemModalTitle">
+  <div class="modal-header">
+    <h2 id="deleteItemModalTitle" class="modal-title">Delete Item?</h2>
+    <button class="modal-close" id="deleteItemModalClose" aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <p>This will permanently delete <strong id="deleteItemName"></strong>. This cannot be undone.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" id="cancelDeleteItemModal">Cancel</button>
+    <button class="btn-danger" id="confirmDeleteItem">Yes, Delete</button>
+  </div>
+</div>
+
+<!-- ── IMAGE LIGHTBOX ── -->
+<div class="lightbox hidden" id="lightbox" role="dialog" aria-label="Image viewer">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close lightbox">✕</button>
+  <img id="lightboxImg" src="" alt="Full size product image" class="lightbox-img" />
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const CONTAINER_ID = {{ container.id }};
+  const CONTAINER_COLOR = "{{ container.color }}";
+</script>
+<script src="{{ url_for('static', filename='js/container.js') }}"></script>
+{% endblock %}

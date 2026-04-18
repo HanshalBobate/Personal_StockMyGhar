@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}StockMyGhar — My Pantry{% endblock %}
+
+{% block content %}
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-text">
+    <h1>My Pantry</h1>
+    <p class="hero-sub">Track every shelf, fridge, and storage box in one place.</p>
+  </div>
+  <button class="btn-primary hero-btn" id="btnNewContainerDesktop" aria-label="Add new container">
+    <span class="btn-icon">+</span> New Container
+  </button>
+</section>
+
+<!-- Floating Action Button (mobile only) -->
+<button class="fab" id="btnNewContainerFab" aria-label="Add new container" title="New Container">+</button>
+
+<!-- ── SEARCH ── -->
+<div class="search-bar-wrap">
+  <input type="search" id="searchContainers" class="search-bar" placeholder="🔍  Search containers…" autocomplete="off" />
+</div>
+
+<!-- ── CONTAINER GRID ── -->
+<section class="container-grid" id="containerGrid">
+  <div class="loading-spinner" id="gridLoader">
+    <div class="spinner"></div>
+    <p>Loading your pantry…</p>
+  </div>
+</section>
+
+<div class="empty-state hidden" id="emptyState">
+  <div class="empty-icon">📦</div>
+  <h2>No containers yet</h2>
+  <p>Create your first container — e.g. "Kitchen Shelf" or "Fridge".</p>
+  <button class="btn-primary" onclick="document.getElementById('btnNewContainer').click()">
+    + Add Container
+  </button>
+</div>
+
+<!-- ── ADD / EDIT CONTAINER MODAL ── -->
+<div class="modal hidden" id="containerModal" role="dialog" aria-modal="true" aria-labelledby="containerModalTitle">
+  <div class="modal-header">
+    <h2 id="containerModalTitle" class="modal-title">New Container</h2>
+    <button class="modal-close" id="containerModalClose" aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="cName">Container Name <span class="req">*</span></label>
+      <input type="text" id="cName" placeholder="e.g. Kitchen Shelf" maxlength="100" />
+    </div>
+
+    <div class="form-group">
+      <label>Choose an Emoji Icon</label>
+      <div class="emoji-picker" id="emojiPicker">
+        {% for e in ['📦','🛒','🧊','🥘','🍱','🫙','🧴','🍾','🥫','🫗','🥬','🧺','🗄️','🏠','🍃'] %}
+        <button class="emoji-btn {% if loop.first %}active{% endif %}" data-emoji="{{ e }}">{{ e }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Accent Color</label>
+      <div class="color-swatches" id="colorSwatches">
+        {% for color in ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16'] %}
+        <button class="swatch {% if loop.first %}active{% endif %}" data-color="{{ color }}" style="background:{{ color }};" aria-label="{{ color }}"></button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" id="cancelContainerModal">Cancel</button>
+    <button class="btn-primary" id="saveContainer">Save Container</button>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="modal hidden" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="modal-header">
+    <h2 id="deleteModalTitle" class="modal-title">Delete Container?</h2>
+    <button class="modal-close" id="deleteModalClose" aria-label="Close">✕</button>
+  </div>
+  <div class="modal-body">
+    <p id="deleteModalMsg">This will permanently delete the container and <strong>all its items</strong>. This cannot be undone.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" id="cancelDeleteModal">Cancel</button>
+    <button class="btn-danger" id="confirmDelete">Yes, Delete</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

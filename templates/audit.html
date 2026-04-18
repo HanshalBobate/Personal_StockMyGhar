@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Change Log — StockMyGhar{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <h1>📋 Change Log</h1>
+    <p class="hero-sub">Every add, edit, and delete — tracked automatically.</p>
+  </div>
+</section>
+
+<!-- ── FILTERS ── -->
+<div class="audit-filters">
+  <select id="filterEntity" aria-label="Filter by type">
+    <option value="">All types</option>
+    <option value="container">Containers</option>
+    <option value="item">Items</option>
+  </select>
+  <select id="filterAction" aria-label="Filter by action">
+    <option value="">All actions</option>
+    <option value="ADD">Added</option>
+    <option value="UPDATE">Updated</option>
+    <option value="DELETE">Deleted</option>
+  </select>
+  <button class="btn-ghost" id="refreshAudit" style="flex:none;">↻ Refresh</button>
+</div>
+
+<p id="auditMeta" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;"></p>
+
+<!-- ── TABLE ── -->
+<div class="audit-table-wrap" id="auditTableWrap">
+  <div class="loading-spinner" style="padding:32px 0;">
+    <div class="spinner"></div>
+    <p>Loading log…</p>
+  </div>
+</div>
+
+<div class="empty-state hidden" id="auditEmpty">
+  <div class="empty-icon">📋</div>
+  <h2>No log entries yet</h2>
+  <p>Start adding or editing containers and items — every change will be recorded here.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadAudit() {
+  const entity = document.getElementById('filterEntity').value;
+  const action = document.getElementById('filterAction').value;
+  const wrap   = document.getElementById('auditTableWrap');
+  const empty  = document.getElementById('auditEmpty');
+  const meta   = document.getElementById('auditMeta');
+
+  wrap.innerHTML = '<div class="loading-spinner" style="padding:32px 0;"><div class="spinner"></div><p>Loading…</p></div>';
+  empty.classList.add('hidden');
+
+  let url = `/api/audit?limit=200`;
+  if (entity) url += `&entity=${entity}`;
+  if (action) url += `&action=${action}`;
+
+  try {
+    const data = await fetch(url).then(r => r.json());
+    meta.textContent = `${data.total} total entries`;
+
+    if (!data.logs.length) {
+      wrap.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    const rows = data.logs.map(log => {
+      const ts   = new Date(log.timestamp);
+      const time = ts.toLocaleDateString('en-IN', { day:'numeric', month:'short' })
+                 + ' ' + ts.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+      const det  = log.details ? JSON.stringify(log.details, null, 2) : '—';
+      return `<tr>
+        <td style="color:var(--text-dim); white-space:nowrap;">${time}</td>
+        <td><span class="action-badge action-${log.action}">${log.action}</span></td>
+        <td style="text-transform:capitalize;">${log.entity_type}</td>
+        <td style="font-weight:500;">${escHtml(log.entity_name || '—')}</td>
+        <td><details style="cursor:pointer;"><summary style="color:var(--text-muted);font-size:11px;">details</summary><pre style="font-size:10px;color:var(--text-muted);margin-top:6px;white-space:pre-wrap;max-width:220px;">${escHtml(det)}</pre></details></td>
+      </tr>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Action</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch (e) {
+    wrap.innerHTML = '<p style="padding:20px; color:var(--red);">Failed to load log.</p>';
+  }
+}
+
+function escHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('filterEntity').addEventListener('change', loadAudit);
+document.getElementById('filterAction').addEventListener('change', loadAudit);
+document.getElementById('refreshAudit').addEventListener('click',  loadAudit);
+document.addEventListener('DOMContentLoaded', loadAudit);
+</script>
+{% endblock %}

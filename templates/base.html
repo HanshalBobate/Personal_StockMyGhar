@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0d0f14" />
+  <meta name="description" content="StockMyGhar — your personal offline grocery inventory tracker" />
+  <title>{% block title %}StockMyGhar{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <a href="/" class="nav-brand">
+      <span class="brand-icon">🏠</span>
+      <span class="brand-text">StockMyGhar</span>
+    </a>
+    <div class="nav-stats" id="navStats">
+      <span class="stat-badge" id="statContainers">— containers</span>
+      <span class="stat-badge" id="statItems">— items</span>
+      <a href="/audit" class="nav-link">📋 Log</a>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── TOAST ── -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- ── MODAL BACKDROP ── -->
+  <div id="modalBackdrop" class="modal-backdrop hidden" aria-hidden="true"></div>
+
+  <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
